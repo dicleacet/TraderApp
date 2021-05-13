@@ -55,23 +55,19 @@ class traderApp(QtWidgets.QMainWindow):
         pendingUserWallet = connection.execute("SELECT * FROM BAKIYEPENDİNG")
         for user in pendingUserWallet:
             self.adminForm.listWidget_2.addItem(str(user[1]))
-        self.adminForm.listWidget.itemClicked.connect(self.swapUserTable) 
+        self.adminForm.listWidget_2.itemClicked.connect(self.swapUserTable) 
         connection.close()
 
     def swapUserTable(self, item):
-        QtWidgets.QMessageBox.information(self, "ListWidget", "ListWidget: " + item.text())
         connection = sqlite3.connect("TraderDb.db")
         cur = connection.cursor()
         pendingUserWallet = cur.execute("SELECT * FROM BAKIYEPENDİNG")
         for user in pendingUserWallet:
-            money = cur.execute("SELECT HESAPBAKİYE FROM USERS WHERE USERNAME = ?",(user[0],))
-            user[1] = user[1] + money
-            connection.execute('UPDATdE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(user[1],user[0]))
+            connection.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(user[1],user[0]))
         connection.commit()
         connection.close()
 
-    def swapProductTable(self, item):
-        QtWidgets.QMessageBox.information(self, "ListWidget", "ListWidget: " + item.text())
+    def swapProductTable(self):
         connection = sqlite3.connect("TraderDb.db")
         cur = connection.cursor()
         pendingProductItem = cur.execute("SELECT * FROM PRODUCTPENDİNG")
@@ -127,7 +123,7 @@ class traderApp(QtWidgets.QMainWindow):
         cursor = connection.cursor()
         print(int(self.productCount[0]))
         if (int(UrunBirimi) < int(self.productCount[0])):
-            connection.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',(UrunBirimi-self.productCount,self.username,ProductName))
+            connection.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',(int(UrunBirimi)-int(self.productCount[0]),self.username,ProductName))
             self.showMessageBox('Warning','işleminiz tamamlanmıştır!')
         elif (int(UrunBirimi) == int(self.productCount[0])):
             cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ?",(self.username,ProductName))
