@@ -1,3 +1,4 @@
+from sqlite3.dbapi2 import Row
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
 from login import login_MainWindow
@@ -50,29 +51,34 @@ class traderApp(QtWidgets.QMainWindow):
         connection = sqlite3.connect("TraderDb.db")
         pendingProductItem = connection.execute("SELECT * FROM PRODUCTPENDİNG")
         for prod in pendingProductItem:
-            self.adminForm.listWidget.addItem(str(prod[1]))
-        self.adminForm.listWidget.itemClicked.connect(self.swapProductTable) 
+            self.adminForm.product_listWidget.addItem(prod[0]+" = "+str(prod[1]))
+        connection.execute("DELETE FROM PRODUCTPENDİNG")
+        self.adminForm.product_listWidget.itemClicked.connect(self.swapProductTable) 
         pendingUserWallet = connection.execute("SELECT * FROM BAKIYEPENDİNG")
         for user in pendingUserWallet:
-            self.adminForm.listWidget_2.addItem(str(user[1]))
-        self.adminForm.listWidget_2.itemClicked.connect(self.swapUserTable) 
-        connection.close()
-
-    def swapUserTable(self, item):
-        connection = sqlite3.connect("TraderDb.db")
-        cur = connection.cursor()
-        pendingUserWallet = cur.execute("SELECT * FROM BAKIYEPENDİNG")
-        for user in pendingUserWallet:
-            connection.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(user[1],user[0]))
+            self.adminForm.User_Wallet_listWidget.addItem(user[0]+" = "+str(user[1]))
+        connection.execute("DELETE FROM BAKIYEPENDİNG")
+        self.adminForm.User_Wallet_listWidget.itemClicked.connect(self.swapUserTable)
         connection.commit()
         connection.close()
-
-    def swapProductTable(self):
+        
+    def swapUserTable(self, item):
+        user = item.text().split(" ")
         connection = sqlite3.connect("TraderDb.db")
         cur = connection.cursor()
-        pendingProductItem = cur.execute("SELECT * FROM PRODUCTPENDİNG")
-        for i in pendingProductItem:
-            cur.execute("INSERT INTO PRODUCT VALUES(?,?,?,?)",(str(i[0]),str(i[1]),str(i[2]),str(i[3])))
+        cur.execute("SELECT * FROM BAKIYEPENDİNG WHERE USERNAME = ? AND BAKİYE = ?",(user[0],user[2])).fetchone()
+        cur.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(user[2],user[0]))
+        connection.commit()
+        connection.close()
+        self.showMessageBox('Information','Işlem onaylandı!')
+        self.adminForm.User_Wallet_listWidget.takeItem(self.adminForm.User_Wallet_listWidget.row(item))
+
+    def swapProductTable(self, item):
+        prod = item.text().split(" ")
+        connection = sqlite3.connect("TraderDb.db")
+        cur = connection.cursor()
+        cur.execute("SELECT * FROM PRODUCTPENDİNG WHERE USERNAME = ? AND PRODUCTNAME = ?",(prod[0],prod[2])).fetchone()
+        cur.execute("INSERT INTO PRODUCT VALUES(?,?,?,?)",(str(i[0]),str(i[1]),str(i[2]),str(i[3])))
         connection.commit()
         connection.close()
 
@@ -121,9 +127,8 @@ class traderApp(QtWidgets.QMainWindow):
         UrunBirimi = self.sellBuy.buyquantity_line.text()
         connection = sqlite3.connect("TraderDb.db")
         cursor = connection.cursor()
-        print(int(self.productCount[0]))
         if (int(UrunBirimi) < int(self.productCount[0])):
-            connection.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',(int(UrunBirimi)-int(self.productCount[0]),self.username,ProductName))
+            connection.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',(int(self.productCount[0])-int(UrunBirimi),self.username,ProductName))
             self.showMessageBox('Warning','işleminiz tamamlanmıştır!')
         elif (int(UrunBirimi) == int(self.productCount[0])):
             cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ?",(self.username,ProductName))

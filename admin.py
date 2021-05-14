@@ -37,7 +37,7 @@ class Ui_admin(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(Form)
-        self.label_2.setGeometry(QtCore.QRect(550, 120, 251, 31))
+        self.label_2.setGeometry(QtCore.QRect(570, 120, 251, 31))
         font = QtGui.QFont()
         font.setFamily("Gill Sans Ultra Bold Condensed")
         self.label_2.setFont(font)
@@ -51,8 +51,8 @@ class Ui_admin(object):
         Form.setWindowTitle(_translate("Form", "Form"))
         self.title_label.setText(_translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-size:36pt;\">ADMIN PANEL</span></p></body></html>"))
         self.tip_label.setText(_translate("Form", "(Onayladığınız Urun/Kullanıcı hareketleri için tıklamanız yeterli)"))
-        self.label.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:12pt;\">BEKLEYEN SATMALAR </span></p></body></html>"))
-        self.label_2.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:12pt;\">BEKLEYEN SATIN ALMALAR </span></p></body></html>"))
+        self.label.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:12pt;\">BEKLEYEN URUNLER </span></p></body></html>"))
+        self.label_2.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:12pt;\">BEKLEYEN BAKIYELER </span></p></body></html>"))
 
 
 if __name__ == "__main__":
