@@ -51,7 +51,7 @@ class traderApp(QtWidgets.QMainWindow):
         connection = sqlite3.connect("TraderDb.db")
         pendingProductItem = connection.execute("SELECT * FROM PRODUCTPENDİNG")
         for prod in pendingProductItem:
-            self.adminForm.product_listWidget.addItem(prod[0]+" = "+str(prod[1]))
+            self.adminForm.product_listWidget.addItem(prod[0]+" = "+str(prod[1]+" "+str(prod[2])+" TL'den"+" "+str(prod[3])+" tane"))
         connection.execute("DELETE FROM PRODUCTPENDİNG")
         self.adminForm.product_listWidget.itemClicked.connect(self.swapProductTable) 
         pendingUserWallet = connection.execute("SELECT * FROM BAKIYEPENDİNG")
@@ -78,10 +78,12 @@ class traderApp(QtWidgets.QMainWindow):
         connection = sqlite3.connect("TraderDb.db")
         cur = connection.cursor()
         cur.execute("SELECT * FROM PRODUCTPENDİNG WHERE USERNAME = ? AND PRODUCTNAME = ?",(prod[0],prod[2])).fetchone()
-        cur.execute("INSERT INTO PRODUCT VALUES(?,?,?,?)",(str(i[0]),str(i[1]),str(i[2]),str(i[3])))
+        cur.execute("INSERT INTO PRODUCT VALUES(?,?,?,?)",(prod[0],prod[2],prod[3],prod[5]))
         connection.commit()
         connection.close()
-
+        self.showMessageBox('Information','Işlem onaylandı!')
+        self.adminForm.product_listWidget.takeItem(self.adminForm.product_listWidget.row(item))
+    
     def adminShow(self):
         self.adminWindow = QtWidgets.QDialog()
         self.adminForm = Ui_admin()
