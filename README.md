@@ -1,6 +1,7 @@
 # Trader App 
 TraderApp, Celal Bayar Üniversitesi Yazılım Yapımı dersi için geliştirilmiştir.
 TraderApp projesi için temel olarak Python-pyqt5 kütüphanesi kullanılmıştır. Proje, kullanıcıların ürün alışverişi yapabilecekleri desktop uygulamasıdır. 'main' dosyasını çalıştırarak projeyi kullanabilirsiniz.
+Youtube = https://youtu.be/5_0Gjmk8js8  
 
 ## Kullanım 
 ilk başta 'database.py' dosyasını çalıştırıp database oluşturmanız gerekmektedir. Daha sonrasında 'main.py' ile programı çalıştırın. 
