@@ -28,7 +28,7 @@ class Ui_admin(object):
         self.User_Wallet_listWidget.setGeometry(QtCore.QRect(530, 160, 291, 291))
         self.User_Wallet_listWidget.setObjectName("User_Wallet_listWidget")
         self.tip_label = QtWidgets.QLabel(Form)
-        self.tip_label.setGeometry(QtCore.QRect(250, 460, 361, 16))
+        self.tip_label.setGeometry(QtCore.QRect(250, 460, 371, 16))
         self.tip_label.setObjectName("tip_label")
         self.label = QtWidgets.QLabel(Form)
         self.label.setGeometry(QtCore.QRect(110, 120, 271, 31))
@@ -48,9 +48,9 @@ class Ui_admin(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Admin Panel"))
+        Form.setWindowTitle(_translate("Form", "Form"))
         self.title_label.setText(_translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-size:36pt;\">ADMIN PANEL</span></p></body></html>"))
-        self.tip_label.setText(_translate("Form", "(Onayladığınız Urun/Kullanıcı hareketleri için tıklamanız yeterli)"))
+        self.tip_label.setText(_translate("Form", "(Onayladığınız Urun/Kullanıcı hareketleri için tıklamanız yeterlidir)"))
         self.label.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:12pt;\">BEKLEYEN URUNLER </span></p></body></html>"))
         self.label_2.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:12pt;\">BEKLEYEN BAKIYELER </span></p></body></html>"))
 
