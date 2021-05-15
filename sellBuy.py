@@ -207,7 +207,7 @@ class Ui_sellBuy(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Sell-Buy"))
         self.title_text.setText(_translate("MainWindow", "Ürün Sat"))
         self.sellProduct_label.setText(_translate("MainWindow", "Satılacak Ürün"))
         self.sellproduct_comboBox.setCurrentText(_translate("MainWindow", "Bugday"))
