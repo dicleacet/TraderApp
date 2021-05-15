@@ -9,13 +9,7 @@ def createTable():
     connection.commit()
     connection.execute("CREATE TABLE BAKIYEPENDİNG (USERNAME TEXT NOT NULL, BAKİYE İNT)")
     connection.execute("CREATE TABLE PRODUCTPENDİNG(USERNAME TEXT,PRODUCTNAME TEXT,PRİCE İNT, PRODUCTQUANTİTY İNT)")
-    result = connection.execute("SELECT * FROM USERS")
-    for data in result:
-        print("Username: " ,data[0])
-        print("Email: ", data[1])
-        print("Password: ", data[2])
-
-
+    connection.commit()
     connection.close()
 
 createTable()
