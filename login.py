@@ -58,7 +58,7 @@ class login_MainWindow(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Login - Sign Up"))
         self.u_name_label.setText(_translate("Dialog", "Kullanıcı adı"))
         self.pass_label.setText(_translate("Dialog", "Sifre"))
         self.log_Button.setText(_translate("Dialog", "Giriş Yap"))
