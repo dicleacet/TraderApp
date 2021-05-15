@@ -48,7 +48,7 @@ class Ui_admin(object):
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
+        Form.setWindowTitle(_translate("Form", "Admin Panel"))
         self.title_label.setText(_translate("Form", "<html><head/><body><p align=\"center\"><span style=\" font-size:36pt;\">ADMIN PANEL</span></p></body></html>"))
         self.tip_label.setText(_translate("Form", "(Onayladığınız Urun/Kullanıcı hareketleri için tıklamanız yeterli)"))
         self.label.setText(_translate("Form", "<html><head/><body><p><span style=\" font-size:12pt;\">BEKLEYEN URUNLER </span></p></body></html>"))
