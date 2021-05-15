@@ -113,10 +113,8 @@ class traderApp(QtWidgets.QMainWindow):
         self.sellBuy.setupUi(self.sellWindow)
         connection = sqlite3.connect("TraderDb.db")
         cursor = connection.cursor()
-        wallet = cursor.execute("SELECT HESAPBAKİYE FROM USERS WHERE USERNAME = ? AND PASSWORD = ?",(self.username,self.password))
-        wallet = wallet.fetchone()
-        self.wallet = wallet
-        self.sellBuy.viewWallet_label.setText(str(wallet[0]))
+        self.wallet = cursor.execute("SELECT HESAPBAKİYE FROM USERS WHERE USERNAME = ? AND PASSWORD = ?",(self.username,self.password)).fetchone()
+        self.sellBuy.viewWallet_label.setText(str(self.wallet[0]))
         self.sellWindow.show()
         connection.close()
         self.sellBuy.addMoney_pushButton.clicked.connect(self.bakiye)
@@ -129,12 +127,25 @@ class traderApp(QtWidgets.QMainWindow):
         UrunBirimi = self.sellBuy.buyquantity_line.text()
         connection = sqlite3.connect("TraderDb.db")
         cursor = connection.cursor()
-        if (int(UrunBirimi) < int(self.productCount[0])):
-            connection.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',(int(self.productCount[0])-int(UrunBirimi),self.username,ProductName))
+        saticiBakiye =cursor.execute("SELECT HESAPBAKİYE FROM USERS WHERE USERNAME = ?",(self.product[0],)).fetchone()
+        if (int(UrunBirimi) < int(self.product[3])):
+            cursor.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',(int(self.product[3])-int(UrunBirimi),self.product[0],ProductName))
             self.showMessageBox('Warning','işleminiz tamamlanmıştır!')
-        elif (int(UrunBirimi) == int(self.productCount[0])):
-            cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ?",(self.username,ProductName))
+            ToplamFiyat = int(UrunBirimi)*self.productprice[0]
+            if(self.wallet[0]>=ToplamFiyat):
+                cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(self.wallet[0]-ToplamFiyat,self.username))
+                cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(ToplamFiyat+saticiBakiye[0],self.product[0]))
+            else:
+                self.showMessageBox("Satın alma işlemi gerçekleştirilemedi! lütfen bakiye ekleyiniz.")
+        elif (int(UrunBirimi) == int(self.product[3])):
+            cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ? AND PRODUCTQUANTİTY=?",(self.product[0],ProductName,self.product[3]))
             self.showMessageBox('Warning','işleminiz tamamlanmıştır!')
+            ToplamFiyat = int(UrunBirimi)*self.productprice[0]
+            if(self.wallet[0]>=ToplamFiyat):
+                cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(self.wallet[0] - ToplamFiyat,self.username))
+                cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(ToplamFiyat+saticiBakiye[0],self.product[0]))
+            else:
+                self.showMessageBox("Satın alma işlemi gerçekleştirilemedi! lütfen bakiye ekleyiniz.")
         else:
             self.showMessageBox('Warning', 'Lutfen geçerli bir sayı giriniz!')
         connection.commit()
@@ -163,8 +174,8 @@ class traderApp(QtWidgets.QMainWindow):
         connection = sqlite3.connect("TraderDb.db")
         cursor = connection.cursor()
         self.productprice = cursor.execute("SELECT MIN(PRİCE) FROM PRODUCT WHERE PRODUCTNAME = ?",(controlProduct,)).fetchone()
-        self.productCount = cursor.execute("SELECT PRODUCTQUANTİTY FROM PRODUCT WHERE PRODUCTNAME = ? AND PRİCE = ?",(controlProduct,self.productprice[0])).fetchone()
-        self.showMessageBox('Stok Bilgisi', f"Seçtiğiniz Üründen {self.productCount[0]} tane kalmıştır")
+        self.product = cursor.execute("SELECT * FROM PRODUCT WHERE PRODUCTNAME = ? AND PRİCE = ?",(controlProduct,self.productprice[0])).fetchone()
+        self.showMessageBox('Stok Bilgisi', f"Seçtiğiniz Üründen {self.product[3]} tane kalmıştır")
         self.sellBuy.viewPrice_label.setText(str(self.productprice[0]))
         connection.close()
 
