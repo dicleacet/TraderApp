@@ -117,7 +117,7 @@ class Ui_signUp(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Sign Up"))
         self.title_label.setText(_translate("Dialog", "KAYIT OL "))
         self.signup_Button.setText(_translate("Dialog", "Kayıt ol"))
         self.name_label.setText(_translate("Dialog", "Ad - Soyad "))
