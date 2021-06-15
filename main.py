@@ -115,53 +115,51 @@ class traderApp(QtWidgets.QMainWindow):
         self.sellWindow.show()
         self.sellBuy.sell_pushButton.clicked.connect(self.sellit)
         self.sellBuy.buy_pushButton.clicked.connect(self.buyit)
-        self.sellBuy.exit_button.clicked.connect(self.sell_buy)
+        self.sellBuy.exit_button.clicked.connect(self.signOut)
         self.sellBuy.addMoney_button.clicked.connect(self.bakiye)
+        self.sellWindow.show()
+        self.bakiyeGoster()
+
+    def bakiyeGoster(self):
         connection = sqlite3.connect("TraderDb.db")
         cursor = connection.cursor()
         self.wallet = cursor.execute("SELECT HESAPBAKİYE FROM USERS WHERE USERNAME = ? AND PASSWORD = ?",(self.username,self.password)).fetchone()
         self.sellBuy.money_label_2.setText(str(self.wallet[0]))
-        self.sellWindow.show()
         connection.close()
 
-    def sell_buy(self):
-        connection = sqlite3.connect("TraderDb.db")
-        cursor = connection.cursor()
-        satilanlar = cursor.execute("SELECT * FROM PRODUCT").fetchall()
-        alinanlar = cursor.execute("SELECT * FROM BUYPRODUCT").fetchall()
-        for alinan in alinanlar:
-            for satilan in satilanlar:
-                if(alinan[2] <= satilan[2]):
-                    if (alinan[3] < satilan[3]):
-                        cursor.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',(satilan[3]-alinan[3],satilan[0],satilan[1]))
-                        self.showMessageBox('Warning','işleminiz tamamlanmıştır!')
-                        ToplamFiyat = satilan[3]*satilan[2]
-                        if(self.wallet[0]>=ToplamFiyat):
-                            cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(self.wallet[0]-ToplamFiyat,self.username))
-                            cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(ToplamFiyat+saticiBakiye[0],self.product[0]))
-                        else:
-                            self.showMessageBox("Satın alma işlemi gerçekleştirilemedi! lütfen bakiye ekleyiniz.")
-                    elif (int(UrunBirimi) == int(self.product[3])):
-                        cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ? AND PRODUCTQUANTİTY=?",(self.product[0],ProductName,self.product[3]))
-                        self.showMessageBox('Warning','işleminiz tamamlanmıştır!')
-                        ToplamFiyat = int(UrunBirimi)*self.productprice[0]
-                        if(self.wallet[0]>=ToplamFiyat):
-                            cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(self.wallet[0] - ToplamFiyat,self.username))
-                            cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(ToplamFiyat+saticiBakiye[0],self.product[0]))
-                        else:
-                            self.showMessageBox("Satın alma işlemi gerçekleştirilemedi! lütfen bakiye ekleyiniz.")
-                    else:
-                        self.showMessageBox('Warning', 'Lutfen geçerli bir sayı giriniz!')
-
+    def signOut(self):
+        self.sellWindow.close()
+        self.loginForm.u_name_line.setText("")
+        self.loginForm.pass_line.setText("")
+        self.show()
+        
     def buyit(self):
         Urun = self.sellBuy.buyproduct_comboBox.currentText() 
         UrunBirimi = self.sellBuy.buyquantity_line.text()
         UrunFiyatı = self.sellBuy.buyprice_line.text()
         connection = sqlite3.connect("TraderDb.db")
-        connection.execute("INSERT INTO BUYPRODUCT VALUES(?,?,?,?)",(self.username,Urun,UrunFiyatı,UrunBirimi))
-        connection.commit()
-        self.showMessageBox('Information','Satin alim isleminiz bekleme listesine alindi!')
-        connection.close()
+        cursor = connection.cursor()
+        try:
+            UygunUrunler = cursor.execute("SELECT * FROM PRODUCT WHERE PRODUCTNAME = ?",(Urun,)).fetchone()
+            if(UygunUrunler[2]<=int(UrunFiyatı)):
+                if(UygunUrunler[3]>int(UrunBirimi)):
+                    toplamFiyat = UygunUrunler[2] * int(UrunBirimi)
+                    cursor.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',((UygunUrunler[3]-int(UrunBirimi)),UygunUrunler[0],UygunUrunler[1]))
+                elif(UygunUrunler[3]==int(UrunBirimi)):
+                    toplamFiyat = UygunUrunler[2] * int(UrunBirimi)
+                    cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ? AND PRODUCTQUANTİTY=?",(UygunUrunler[0],UygunUrunler[1],UygunUrunler[3]))
+                else:
+                    toplamFiyat = UygunUrunler[2] * UygunUrunler[3]
+                    cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ? AND PRODUCTQUANTİTY=?",(UygunUrunler[0],UygunUrunler[1],UygunUrunler[3]))
+                cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(self.wallet[0]-toplamFiyat,self.username))
+                connection.commit()
+                connection.close()
+                self.bakiyeGoster()
+                self.showMessageBox('Success',f'{Urun} adli urunu icin satın alim islemi tamamlanmistir. Yeni bakiye {round(self.wallet[0],2)}tir')
+            else:
+                self.showMessageBox('Error','Istediginiz urun bulunamadi')
+        except TypeError:
+            self.showMessageBox('Error','Istediginiz urun bulunamadi')
 
     def sellit(self):
         Urun = self.sellBuy.sellproduct_comboBox.currentText() 
