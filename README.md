@@ -12,6 +12,6 @@ ilk başta 'database.py' dosyasını çalıştırıp database oluşturmanız ger
 ## Kayıt olma ekranı
 ![image](https://user-images.githubusercontent.com/71029563/118359268-6389f800-b58b-11eb-91d7-e5a130f5d543.png)
 ## Kullanıcı girişi ardından ürün alışverişi yapılan ana ekran 
-![image](https://user-images.githubusercontent.com/71029563/118359210-20c82000-b58b-11eb-9086-3c0b2607242b.png)
+![image](https://user-images.githubusercontent.com/71029563/122243048-79614480-cecc-11eb-86a5-8519e8cf4484.png)
 ## Admin girişi ardından kullanıcı hareketlerini onayladığımız panel ekranı
-![image](https://user-images.githubusercontent.com/71029563/118359431-0fcbde80-b58c-11eb-927a-3c4fee125d31.png)
+![image](https://user-images.githubusercontent.com/71029563/122243114-867e3380-cecc-11eb-8bcd-a1534004977d.png)
