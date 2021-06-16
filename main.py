@@ -1,5 +1,5 @@
-import sys, requests
-from PyQt5 import QtWidgets
+import sys, requests, csv , datetime, pandas
+from PyQt5 import QtCore, QtWidgets
 from login import login_MainWindow
 from signUp import Ui_signUp
 from admin import Ui_admin
@@ -91,6 +91,7 @@ class traderApp(QtWidgets.QMainWindow):
         self.adminForm.setupUi(self.adminWindow)
         self.adminWindow.show()
         self.adminPanelList()
+        self.adminForm.exit_button.clicked.connect(self.adminsignOut)
 
     def loginCheck(self):
         self.username = self.loginForm.u_name_line.text()
@@ -124,10 +125,16 @@ class traderApp(QtWidgets.QMainWindow):
         connection = sqlite3.connect("TraderDb.db")
         cursor = connection.cursor()
         self.wallet = cursor.execute("SELECT HESAPBAKİYE FROM USERS WHERE USERNAME = ? AND PASSWORD = ?",(self.username,self.password)).fetchone()
-        self.sellBuy.money_label_2.setText(str(self.wallet[0]))
+        self.sellBuy.money_label_2.setText(str(round(self.wallet[0])))
         connection.close()
 
-    def signOut(self):
+    def adminsignOut(self):
+        self.adminWindow.close()
+        self.loginForm.u_name_line.setText("")
+        self.loginForm.pass_line.setText("")
+        self.show()
+
+    def SellsignOut(self):
         self.sellWindow.close()
         self.loginForm.u_name_line.setText("")
         self.loginForm.pass_line.setText("")
@@ -140,24 +147,35 @@ class traderApp(QtWidgets.QMainWindow):
         connection = sqlite3.connect("TraderDb.db")
         cursor = connection.cursor()
         try:
-            UygunUrunler = cursor.execute("SELECT * FROM PRODUCT WHERE PRODUCTNAME = ?",(Urun,)).fetchone()
-            if(UygunUrunler[2]<=int(UrunFiyatı)):
-                if(UygunUrunler[3]>int(UrunBirimi)):
-                    toplamFiyat = UygunUrunler[2] * int(UrunBirimi)
+            UygunUrunler = cursor.execute("SELECT * FROM PRODUCT WHERE PRİCE<= ? AND PRODUCTNAME = ?",(UrunFiyatı,Urun)).fetchone()
+            if(UygunUrunler[3]>int(UrunBirimi)):
+                guncelUrunBirimi = int(UrunBirimi)
+                toplamFiyat = (UygunUrunler[2] * int(UrunBirimi))
+                toplamFiyat += toplamFiyat/100
+                if(toplamFiyat<= self.wallet[0]):
                     cursor.execute('UPDATE "PRODUCT" SET PRODUCTQUANTİTY=? WHERE USERNAME=? AND PRODUCTNAME = ?',((UygunUrunler[3]-int(UrunBirimi)),UygunUrunler[0],UygunUrunler[1]))
-                elif(UygunUrunler[3]==int(UrunBirimi)):
-                    toplamFiyat = UygunUrunler[2] * int(UrunBirimi)
+            elif(UygunUrunler[3]==int(UrunBirimi)):
+                guncelUrunBirimi = int(UrunBirimi)
+                toplamFiyat = UygunUrunler[2] * int(UrunBirimi)
+                toplamFiyat += toplamFiyat/100
+                if(toplamFiyat<= self.wallet[0]):
                     cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ? AND PRODUCTQUANTİTY=?",(UygunUrunler[0],UygunUrunler[1],UygunUrunler[3]))
-                else:
-                    toplamFiyat = UygunUrunler[2] * UygunUrunler[3]
-                    cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ? AND PRODUCTQUANTİTY=?",(UygunUrunler[0],UygunUrunler[1],UygunUrunler[3]))
-                cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(self.wallet[0]-toplamFiyat,self.username))
-                connection.commit()
-                connection.close()
-                self.bakiyeGoster()
-                self.showMessageBox('Success',f'{Urun} adli urunu icin satın alim islemi tamamlanmistir. Yeni bakiye {round(self.wallet[0],2)}tir')
             else:
-                self.showMessageBox('Error','Istediginiz urun bulunamadi')
+                guncelUrunBirimi = UygunUrunler[3]
+                toplamFiyat = UygunUrunler[2] * UygunUrunler[3]
+                toplamFiyat += toplamFiyat/100
+                if(toplamFiyat<= self.wallet[0]):
+                    cursor.execute("DELETE FROM PRODUCT WHERE USERNAME = ? AND PRODUCTNAME = ? AND PRODUCTQUANTİTY=?",(UygunUrunler[0],UygunUrunler[1],UygunUrunler[3]))
+            if(toplamFiyat<= self.wallet[0]):
+                cursor.execute('UPDATE "USERS" SET HESAPBAKİYE=? WHERE USERNAME=?',(self.wallet[0]-toplamFiyat,self.username))
+                satinAlimTarihi = str(datetime.date.today())
+                self.showMessageBox('Success',f'{Urun} adli urun icin {guncelUrunBirimi} birimlik, {UygunUrunler[2]} liralik satin alim toplam {toplamFiyat} lirayla tamamlanmistir. Yeni bakiye {round(self.wallet[0],2)} tir')
+            else:
+                self.showMessageBox('Error', 'Yetersiz bakiye!!')
+            connection.commit()
+            connection.close()
+            self.raporCikar(satinAlimTarihi,Urun,guncelUrunBirimi,UygunUrunler[2])
+            self.bakiyeGoster()
         except TypeError:
             self.showMessageBox('Error','Istediginiz urun bulunamadi')
 
@@ -179,7 +197,18 @@ class traderApp(QtWidgets.QMainWindow):
         connection.commit()
         connection.close()
         self.showMessageBox('Information','Bakiye talebiniz alındı! işleminiz onaylandıktan sonra kullanabilirsiniz!')
-
+        
+    def raporCikar(self,satinAlimTarihi,Urun,guncelUrunBirimi,UrunFiyati):
+        fieldnames = ['Tarih', 'Urun Tipi', 'Urun Birimi', 'UrunFiyati']
+        rows = [
+    {'Tarih': satinAlimTarihi,
+    'Urun Tipi': Urun,
+    'Urun Birimi': guncelUrunBirimi,
+    'UrunFiyati': UrunFiyati},
+    ]
+        with open('Rapor.csv', 'a+', newline='') as fileWrite:
+            writer = csv.DictWriter(fileWrite, fieldnames=fieldnames)
+            writer.writerows(rows)
 
     def doviz(self):     
         sayfa = requests.get("https://www.doviz.com/")

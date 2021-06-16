@@ -1,4 +1,4 @@
-import sqlite3 
+import sqlite3,csv
 
 def createTable():
     connection = sqlite3.connect('TraderDb.db')
@@ -8,9 +8,12 @@ def createTable():
     connection.execute("INSERT INTO USERS VALUES(?,?,?,?,?,?,?,?,?)",('dicle','dicle@gmail.com','123','dicleacet','12112112112','05055050550','izmir','1','30000'))
     connection.execute("CREATE TABLE BAKIYEPENDİNG(USERNAME TEXT NOT NULL, BAKİYE İNT)")
     connection.execute("CREATE TABLE PRODUCTPENDİNG(USERNAME TEXT,PRODUCTNAME TEXT,PRİCE İNT, PRODUCTQUANTİTY İNT)")
-    connection.execute("CREATE TABLE BUYPRODUCT(USERNAME TEXT,PRODUCTNAME TEXT,PRİCE İNT, PRODUCTQUANTİTY İNT)")
     connection.commit()
     connection.close()
+    fieldnames = ['Tarih', 'Urun Tipi', 'Urun Birimi', 'UrunFiyati']
+    with open('Rapor.csv', '', newline='') as fileWrite:
+        writer = csv.DictWriter(fileWrite, fieldnames=fieldnames)
+        writer.writeheader()
 
 createTable()
 
